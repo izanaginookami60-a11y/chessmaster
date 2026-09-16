@@ -1,0 +1,21 @@
+rules_version = '2';
+
+// NOTA: Firebase Storage belum diaktifkan untuk projek ini (perlukan Blaze
+// plan). Fail ini disediakan untuk digunakan kelak apabila Storage
+// diaktifkan - buat masa ini ia tidak dideploy (lihat firebase.json).
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    match /avatars/{userId}/{fileName} {
+      allow read: if true;
+      allow write: if request.auth != null &&
+        request.auth.uid == userId &&
+        request.resource.size < 5 * 1024 * 1024 &&
+        request.resource.contentType.matches('image/.*');
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

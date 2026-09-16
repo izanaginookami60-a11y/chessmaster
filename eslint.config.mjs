@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Third-party / build artefacts we don't own:
+    "public/**", // includes the prebuilt Stockfish bundle
+    "functions/lib/**",
   ]),
 ]);
 

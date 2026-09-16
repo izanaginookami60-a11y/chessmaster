@@ -1,69 +1,185 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import Link from "next/link";
+import {
+  FiUsers,
+  FiCpu,
+  FiTarget,
+  FiBarChart2,
+  FiArrowRight,
+  FiZap,
+} from "react-icons/fi";
+import { GiChessKnight } from "react-icons/gi";
+import { useAuth } from "@/lib/hooks/useAuth";
+import { BOTS } from "@/lib/chess/bots";
+import { BotAvatar } from "@/components/bot/BotAvatar";
+import { SectionTitle } from "@/components/ui/PageHeader";
+import { RecentGames } from "@/components/game/RecentGames";
+
+const MODES = [
+  {
+    href: "/play/online",
+    icon: FiUsers,
+    title: "Play Online",
+    description: "Get paired with a player of similar strength.",
+  },
+  {
+    href: "/play/computer",
+    icon: FiCpu,
+    title: "Play Computer",
+    description: "10 bots from beginner to full-strength Stockfish.",
+  },
+  {
+    href: "/puzzles",
+    icon: FiTarget,
+    title: "Solve Puzzles",
+    description: "Sharpen your tactics with curated positions.",
+  },
+  {
+    href: "/analysis/editor",
+    icon: FiBarChart2,
+    title: "Analysis Board",
+    description: "Explore moves and check your ideas with the engine.",
+  },
+];
+
+const QUICK_TIME_CONTROLS = [
+  { label: "1 min", value: "60", tag: "Bullet" },
+  { label: "3 min", value: "180", tag: "Blitz" },
+  { label: "5 min", value: "300", tag: "Blitz" },
+  { label: "10 min", value: "600", tag: "Rapid" },
+];
+
+export default function HomePage() {
+  const { isAuthenticated, profile } = useAuth();
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      <section className="bg-bg-secondary rounded-2xl p-6 sm:p-10 mb-8 text-center">
+        <GiChessKnight className="text-accent-primary mx-auto mb-3" size={52} />
+        <h1 className="text-3xl sm:text-4xl font-bold text-text-primary mb-3">
+          Play chess. Get better. Every day.
+        </h1>
+        <p className="text-text-secondary max-w-xl mx-auto mb-6">
+          Challenge players around the world, train against adaptive bots,
+          solve puzzles, and review your games with the engine.
+        </p>
+
+        {isAuthenticated && profile && (
+          <p className="text-sm text-text-secondary mb-4">
+            Welcome back,{" "}
+            <span className="font-semibold text-text-primary">
+              {profile.username}
+            </span>{" "}
+            · rating{" "}
+            <span className="font-semibold text-accent-primary">
+              {profile.rating}
+            </span>
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+        )}
+
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <Link
+            href="/play"
+            className="inline-flex items-center gap-2 bg-accent-primary text-bg-primary font-semibold px-5 py-2.5 rounded-lg hover:opacity-90"
           >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <FiZap size={16} /> Play now
+          </Link>
+          <Link
+            href="/puzzles"
+            className="inline-flex items-center gap-2 border border-bg-hover text-text-primary font-medium px-5 py-2.5 rounded-lg hover:bg-bg-hover"
           >
-            Documentation
-          </a>
+            <FiTarget size={16} /> Solve puzzles
+          </Link>
         </div>
-      </main>
+      </section>
+      <section className="mb-10">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {MODES.map((mode) => {
+            const Icon = mode.icon;
+            return (
+              <Link
+                key={mode.href}
+                href={mode.href}
+                className="group bg-bg-secondary hover:bg-bg-hover rounded-xl p-5 transition-colors"
+              >
+                <Icon size={22} className="text-accent-primary mb-3" aria-hidden />
+                <p className="font-semibold text-text-primary">{mode.title}</p>
+                <p className="text-xs text-text-secondary mt-1">
+                  {mode.description}
+                </p>
+                <span className="inline-flex items-center gap-1 text-xs text-accent-link mt-3 group-hover:gap-2 transition-all">
+                  Open <FiArrowRight size={12} />
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="mb-10">
+        <SectionTitle
+          action={
+            <Link
+              href="/play/online"
+              className="text-xs font-medium text-accent-link"
+            >
+              More time controls
+            </Link>
+          }
+        >
+          Quick pair
+        </SectionTitle>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {QUICK_TIME_CONTROLS.map((tc) => (
+            <Link
+              key={tc.value}
+              href={`/play/online?time=${tc.value}&rated=1`}
+              className="bg-bg-secondary hover:bg-bg-hover rounded-xl px-4 py-3 text-center"
+            >
+              <p className="font-semibold text-text-primary">{tc.label}</p>
+              <p className="text-xs text-text-secondary">{tc.tag}</p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="mb-10">
+        <SectionTitle
+          action={
+            <Link
+              href="/play/computer"
+              className="text-xs font-medium text-accent-link"
+            >
+              All bots
+            </Link>
+          }
+        >
+          Featured bots
+        </SectionTitle>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {BOTS.slice(0, 6).map((bot) => (
+            <Link
+              key={bot.id}
+              href={`/play/computer/${bot.id}?color=random&time=600`}
+              className="flex items-center gap-3 bg-bg-secondary hover:bg-bg-hover rounded-xl p-4"
+            >
+              <BotAvatar bot={bot} size={40} />
+              <div className="min-w-0">
+                <p className="font-medium text-text-primary truncate">
+                  {bot.name}
+                </p>
+                <p className="text-xs text-text-secondary">
+                  {bot.elo} ELO · {bot.style}
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {isAuthenticated && <RecentGames limit={6} />}
+
     </div>
   );
 }

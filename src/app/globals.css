@@ -1,26 +1,84 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  --color-bg-primary: #312e2b;
+  --color-bg-secondary: #272522;
+  --color-bg-tertiary: #21201d;
+  --color-bg-hover: #3c3835;
+  --color-bg-active: #4a4643;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #a0a0a0;
+  --color-text-muted: #6b6966;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  --color-accent-primary: #81b64c;
+  --color-accent-secondary: #e5a249;
+  --color-accent-link: #6ba4d9;
+
+  --color-board-light: #ebecd0;
+  --color-board-dark: #779556;
+  --color-board-highlight: #f6f669;
+  --color-board-legal: rgba(0, 0, 0, 0.1);
+  --color-board-check: #ff0000;
+  --color-board-premove: #0066cc;
+
+  --color-rating-bullet: #3b82f6;
+  --color-rating-blitz: #eab308;
+  --color-rating-rapid: #22c55e;
+  --color-rating-daily: #f97316;
+  --color-rating-puzzle: #a855f7;
+
+  --color-result-win: #81b64c;
+  --color-result-loss: #fa412d;
+  --color-result-draw: #a0a0a0;
+
+  --color-evalcolor-brilliant: #26c2a3;
+  --color-evalcolor-great: #5b8bb6;
+  --color-evalcolor-best: #96bc4b;
+  --color-evalcolor-good: #96bc4b;
+  --color-evalcolor-book: #a88b65;
+  --color-evalcolor-inaccuracy: #e6a317;
+  --color-evalcolor-mistake: #e68a17;
+  --color-evalcolor-blunder: #ca3431;
+
+  --color-light-bgPrimary: #f0f0f0;
+  --color-light-bgSecondary: #ffffff;
+  --color-light-textPrimary: #312e2b;
+  --color-light-textSecondary: #6b6966;
+
+  --font-sans: "Segoe UI", system-ui, -apple-system, sans-serif;
+
+  --animate-flash: flash 1s ease-in-out infinite;
+
+  @keyframes flash {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.3;
+    }
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
+
+/* Light theme overrides — swaps the same semantic tokens rather than
+   duplicating every component with dark:/light: variants. */
+:root[data-theme="light"] {
+  --color-bg-primary: #f5f5f3;
+  --color-bg-secondary: #ffffff;
+  --color-bg-tertiary: #ececea;
+  --color-bg-hover: #e2e2df;
+  --color-bg-active: #d5d5d1;
+
+  --color-text-primary: #1f1e1c;
+  --color-text-secondary: #55534f;
+  --color-text-muted: #8a8782;
+}
+

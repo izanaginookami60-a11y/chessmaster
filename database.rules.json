@@ -1,0 +1,62 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "liveGames": {
+      ".read": "auth != null",
+      ".indexOn": ["status", "updatedAt", "createdAt"],
+      "$gameId": {
+        ".read": "auth != null",
+        ".write": "auth != null && (auth.uid == data.child('whitePlayerId').val() || auth.uid == data.child('blackPlayerId').val() || auth.uid == newData.child('whitePlayerId').val() || auth.uid == newData.child('blackPlayerId').val())",
+        "moves": {
+          ".read": "auth != null",
+          ".write": "auth != null && (root.child('liveGames').child($gameId).child('whitePlayerId').val() == auth.uid || root.child('liveGames').child($gameId).child('blackPlayerId').val() == auth.uid)"
+        },
+        "chat": {
+          ".indexOn": ["at"],
+          "$messageId": {
+            ".read": "auth != null",
+            ".write": "auth != null && !data.exists() && (root.child('liveGames').child($gameId).child('whitePlayerId').val() == auth.uid || root.child('liveGames').child($gameId).child('blackPlayerId').val() == auth.uid) && newData.child('senderId').val() == auth.uid"
+          }
+        },
+        "clocks": {
+          ".read": "auth != null",
+          ".write": "auth != null && (root.child('liveGames').child($gameId).child('whitePlayerId').val() == auth.uid || root.child('liveGames').child($gameId).child('blackPlayerId').val() == auth.uid)"
+        }
+      }
+    },
+
+    "presence": {
+      "$userId": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid == $userId"
+      }
+    },
+
+    "matchmakingQueue": {
+      ".read": "auth != null",
+      ".indexOn": ["joinedAt"],
+      "$queueEntryId": {
+        ".read": "auth != null",
+        ".write": "auth != null && (!data.exists() || data.child('userId').val() == auth.uid) && (!newData.exists() || newData.child('userId').val() == auth.uid)"
+      }
+    },
+
+    "pairings": {
+      "$userId": {
+        ".read": "auth != null && auth.uid == $userId",
+        ".write": "auth != null"
+      }
+    },
+
+    "typingIndicators": {
+      "$conversationId": {
+        "$userId": {
+          ".read": "auth != null",
+          ".write": "auth != null && auth.uid == $userId"
+        }
+      }
+    }
+  }
+}
