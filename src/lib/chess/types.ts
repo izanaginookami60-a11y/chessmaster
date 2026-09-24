@@ -71,6 +71,8 @@ export interface ChessBoardHandle {
   getFen: () => string;
   /** Full local move history (used to report an online result). */
   getMoveHistory: () => MoveHistoryEntry[];
+  /** Replace the board contents from a SAN list (replay / self-heal). */
+  loadMoves: (sans: string[]) => void;
   /** Jump the move list / board to a given ply (-1 = starting position). */
   goToMove: (index: number) => void;
 }

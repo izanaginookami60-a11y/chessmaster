@@ -63,8 +63,22 @@ export default function OnlineGamePage() {
     for (let i = appliedRef.current + 1; i <= game.moveCount; i++) {
       const move = moves[String(i)];
       if (!move) break;
-      if (move.byUid !== uid) {
-        boardRef.current.makeMove(move.from, move.to, move.promotion);
+
+      const applied = boardRef.current.makeMove(
+        move.from,
+        move.to,
+        move.promotion
+      );
+      if (!applied) {
+        // Stale or skipped state: rebuild from the authoritative move list
+        // instead of leaving the two boards out of sync.
+        const sans = Object.keys(moves)
+          .map((key) => Number(key))
+          .sort((a, b) => a - b)
+          .map((key) => moves[String(key)].san);
+        boardRef.current.loadMoves(sans);
+        appliedRef.current = game.moveCount;
+        break;
       }
       appliedRef.current = i;
     }

@@ -28,6 +28,7 @@ import { BoardControls } from "./BoardControls";
 import { MoveList } from "./MoveList";
 import { CapturedPieces } from "./CapturedPieces";
 import { computeMaterial } from "@/lib/chess/material";
+import { isSameSquare, tryMove } from "@/lib/chess/game";
 import { useBoardSettingsStore } from "@/lib/store/boardSettingsStore";
 
 export interface ChessBoardProps {
@@ -231,7 +232,10 @@ export const ChessBoard = forwardRef<ChessBoardHandle, ChessBoardProps>(
     const commitMove = useCallback(
       (from: Square, to: Square, promotion?: "q" | "r" | "b" | "n") => {
         const game = gameRef.current;
-        const move = game.move({ from, to, promotion });
+        // chess.js throws on invalid moves, so a rejected drop (same square,
+        // stale position, illegal target) becomes a plain `false` instead of
+        // a runtime error.
+        const move = tryMove(game, from, to, promotion);
         if (!move) return false;
 
         const newFen = game.fen();
@@ -293,6 +297,20 @@ export const ChessBoard = forwardRef<ChessBoardHandle, ChessBoardProps>(
       const game = gameRef.current;
       const piece = game.get(from);
       if (!piece) return false;
+
+      // Dropping a piece back on its own square is not a move: keep the
+      // piece selected instead (and never pass it to chess.js).
+      if (isSameSquare(from, to)) {
+        if (allowedColor === "both" || piece.color === allowedColor) {
+          setSelectedSquare(from);
+          setLegalTargets(
+            game
+              .moves({ square: from, verbose: true })
+              .map((candidate) => candidate.to as Square)
+          );
+        }
+        return false;
+      }
 
       // Never let a player move their opponent's pieces (this also stops
       // premoves being queued on the opponent's behalf).
@@ -359,6 +377,13 @@ export const ChessBoard = forwardRef<ChessBoardHandle, ChessBoardProps>(
 
     function handleSquareClick(square: Square) {
       if (pendingPromotion || readOnly || !isViewingLive) return;
+
+      // Clicking the piece that is already selected deselects it.
+      if (selectedSquare && selectedSquare === square) {
+        setSelectedSquare(null);
+        setLegalTargets([]);
+        return;
+      }
 
       // Clicking a friendly piece (re)selects it
       if (isMyPieceTurn(square)) {
@@ -450,44 +475,61 @@ export const ChessBoard = forwardRef<ChessBoardHandle, ChessBoardProps>(
 
     // Replay a finished game into the board (viewer / analysis mode).
     const initialMovesKey = initialMoves ? initialMoves.join(" ") : "";
+
+    /**
+     * Rebuild the board from a SAN list. Used for replay mode and as a
+     * self-heal path when an opponent's move cannot be applied
+     * incrementally (stale/skipped update).
+     */
+    const applySanList = useCallback(
+      (sans: string[]) => {
+        const game = new Chess(initialFen);
+        const entries: MoveHistoryEntry[] = [];
+
+        for (const san of sans) {
+          let move;
+          try {
+            move = game.move(san);
+          } catch {
+            break;
+          }
+          if (!move) break;
+
+          entries.push({
+            san: move.san,
+            fen: game.fen(),
+            moveNumber: game.moveNumber(),
+            color: move.color,
+            captured: move.captured,
+            from: move.from,
+            to: move.to,
+            isCheck: game.inCheck(),
+            isCheckmate: game.isCheckmate(),
+            isCastle: move.flags.includes("k") || move.flags.includes("q"),
+            isPromotion: !!move.promotion,
+            promotion: move.promotion as "q" | "r" | "b" | "n" | undefined,
+          });
+        }
+
+        gameRef.current = game;
+        setFen(game.fen());
+        setHistory(entries);
+        setViewIndex(entries.length - 1);
+        const last = entries[entries.length - 1];
+        setLastMove(last ? { from: last.from, to: last.to } : null);
+        setSelectedSquare(null);
+        setLegalTargets([]);
+        setArrows([]);
+        setPremove(null);
+        setPendingPromotion(null);
+      },
+      [initialFen]
+    );
+
     useEffect(() => {
       if (!initialMovesKey) return;
-
-      const game = new Chess(initialFen);
-      const entries: MoveHistoryEntry[] = [];
-
-      for (const san of initialMovesKey.split(" ")) {
-        let move;
-        try {
-          move = game.move(san);
-        } catch {
-          break;
-        }
-        if (!move) break;
-
-        entries.push({
-          san: move.san,
-          fen: game.fen(),
-          moveNumber: game.moveNumber(),
-          color: move.color,
-          captured: move.captured,
-          from: move.from,
-          to: move.to,
-          isCheck: game.inCheck(),
-          isCheckmate: game.isCheckmate(),
-          isCastle: move.flags.includes("k") || move.flags.includes("q"),
-          isPromotion: !!move.promotion,
-          promotion: move.promotion as "q" | "r" | "b" | "n" | undefined,
-        });
-      }
-
-      gameRef.current = game;
-      setFen(game.fen());
-      setHistory(entries);
-      setViewIndex(entries.length - 1);
-      const last = entries[entries.length - 1];
-      setLastMove(last ? { from: last.from, to: last.to } : null);
-    }, [initialMovesKey, initialFen]);
+      applySanList(initialMovesKey.split(" "));
+    }, [initialMovesKey, applySanList]);
 
     const undoMove = useCallback(() => {
       gameRef.current.undo();
@@ -547,6 +589,7 @@ export const ChessBoard = forwardRef<ChessBoardHandle, ChessBoardProps>(
         getFen,
         getMoveHistory,
         goToMove,
+        loadMoves: applySanList,
       }),
       [
         flipBoard,
@@ -557,6 +600,7 @@ export const ChessBoard = forwardRef<ChessBoardHandle, ChessBoardProps>(
         getFen,
         getMoveHistory,
         goToMove,
+        applySanList,
       ]
     );
 
