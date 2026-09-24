@@ -58,6 +58,7 @@ export default function AnalysisHomePage() {
   }, [uid]);
 
   const visible = (games ?? []).filter((game) => {
+    if (!game.result) return false; // still in progress
     if (filter === "all" || !uid) return true;
     return resultLabelForPlayer(game, uid) === filter;
   });
@@ -130,7 +131,7 @@ export default function AnalysisHomePage() {
           ) : (
             <ul className="space-y-2">
               {visible.map((game) => {
-                const outcome = resultLabelForPlayer(game, uid);
+                const outcome = resultLabelForPlayer(game, uid) ?? "draw";
                 const opponent =
                   game.whitePlayerId === uid ? game.blackName : game.whiteName;
                 const playedAs = game.whitePlayerId === uid ? "White" : "Black";

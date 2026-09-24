@@ -1,8 +1,8 @@
 import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
-import { getAuth, Auth } from "firebase/auth";
-import { getFirestore, Firestore } from "firebase/firestore";
-import { getFunctions, Functions } from "firebase/functions";
-import { getDatabase, Database } from "firebase/database";
+import { getAuth, Auth, connectAuthEmulator } from "firebase/auth";
+import { getFirestore, Firestore, connectFirestoreEmulator } from "firebase/firestore";
+import { getFunctions, Functions, connectFunctionsEmulator } from "firebase/functions";
+import { getDatabase, Database, connectDatabaseEmulator } from "firebase/database";
 import { getStorage, FirebaseStorage } from "firebase/storage";
 
 // All values come from NEXT_PUBLIC_ env vars so they are safe to expose
@@ -56,6 +56,21 @@ const rtdb: Database = getDatabase(app);
 const storage: FirebaseStorage = getStorage(app);
 // Cloud Functions live in us-central1 (see functions/src/index.ts).
 const functions: Functions = getFunctions(app, "us-central1");
+
+/**
+ * Opt-in emulator wiring for local development (see README):
+ *   NEXT_PUBLIC_USE_FIREBASE_EMULATORS=true
+ * Ports match the `emulators` block in firebase.json.
+ */
+if (
+  typeof window !== "undefined" &&
+  process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS === "true"
+) {
+  connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings: true });
+  connectFirestoreEmulator(firestore, "127.0.0.1", 8080);
+  connectDatabaseEmulator(rtdb, "127.0.0.1", 9000);
+  connectFunctionsEmulator(functions, "127.0.0.1", 5001);
+}
 
 export { app, auth, firestore, rtdb, storage, functions };
 

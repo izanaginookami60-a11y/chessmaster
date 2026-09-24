@@ -67,6 +67,15 @@
       ]
     },
     {
+      "collectionGroup": "friendRequests",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "fromUserId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "tournaments",
       "queryScope": "COLLECTION",
       "fields": [
@@ -83,14 +92,6 @@
       ]
     }
   ],
-  "fieldOverrides": [
-    {
-      "collectionGroup": "publicProfiles",
-      "fieldPath": "usernameLower",
-      "indexes": [
-        { "order": "ASCENDING", "queryScope": "COLLECTION" }
-      ]
-    }
-  ]
+  "fieldOverrides": []
 }
 

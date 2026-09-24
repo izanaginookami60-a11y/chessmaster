@@ -1,0 +1,22 @@
+[
+  {
+    "id": "general",
+    "name": "General chess",
+    "description": "Anything and everything about chess."
+  },
+  {
+    "id": "improvement",
+    "name": "Improvement",
+    "description": "Training plans, study advice and rating goals."
+  },
+  {
+    "id": "openings",
+    "name": "Openings",
+    "description": "Theory, repertoire questions and favourite lines."
+  },
+  {
+    "id": "game-analysis",
+    "name": "Game analysis",
+    "description": "Post a game and get feedback from other players."
+  }
+]

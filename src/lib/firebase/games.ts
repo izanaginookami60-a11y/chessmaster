@@ -26,7 +26,8 @@ export interface CompletedGameRecord {
   blackName: string;
   isBotGame: boolean;
   botId?: string;
-  result: "white" | "black" | "draw";
+  /** Absent while an online game is still in progress. */
+  result?: "white" | "black" | "draw";
   reason: string;
   rated: boolean;
   timeControl: string;
@@ -129,10 +130,15 @@ export async function markGameResult(
   });
 }
 
+/**
+ * How did this player do? Returns null for games that are still running
+ * (online games are created without a result and finished by a function).
+ */
 export function resultLabelForPlayer(
   game: GameDocument,
   uid: string
-): "win" | "loss" | "draw" {
+): "win" | "loss" | "draw" | null {
+  if (!game.result) return null;
   if (game.result === "draw") return "draw";
   const playerWasWhite = game.whitePlayerId === uid;
   const winner = game.result; // "white" | "black"

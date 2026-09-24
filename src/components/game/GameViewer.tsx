@@ -19,6 +19,8 @@ const RESULT_TEXT: Record<string, string> = {
   draw: "Draw",
 };
 
+const PENDING_TEXT = "Game in progress";
+
 export function GameViewer({
   game,
   analysisMode = false,
@@ -92,7 +94,8 @@ export function GameViewer({
             <span className="text-text-secondary text-xs">White</span>
           </div>
           <p className="text-xs text-text-secondary mt-3">
-            {RESULT_TEXT[game.result]} · {game.reason}
+            {game.result ? RESULT_TEXT[game.result] : PENDING_TEXT} ·{" "}
+            {game.reason}
             {game.rated ? " · rated" : ""}
           </p>
         </div>

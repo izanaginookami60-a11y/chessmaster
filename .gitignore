@@ -26,6 +26,8 @@ yarn-error.log*
 # env files (KRITIKAL - jangan sekali-kali commit env sebenar)
 .env
 .env.local
+.env.local.bak
+.env.*.bak
 .env.development.local
 .env.test.local
 .env.production.local

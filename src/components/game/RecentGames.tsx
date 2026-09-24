@@ -69,8 +69,10 @@ export function RecentGames({ limit = 5 }: { limit?: number }) {
         </p>
       ) : (
         <ul className="space-y-2">
-          {games.map((game) => {
-            const outcome = resultLabelForPlayer(game, uid);
+          {games
+            .filter((game) => !!game.result)
+            .map((game) => {
+              const outcome = resultLabelForPlayer(game, uid) ?? "draw";
             const opponent =
               game.whitePlayerId === uid ? game.blackName : game.whiteName;
             const playedAs = game.whitePlayerId === uid ? "White" : "Black";

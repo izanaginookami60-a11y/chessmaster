@@ -78,6 +78,9 @@ export default function OnlineGamePage() {
     let cancelled = false;
     void (async () => {
       try {
+        // Online games start without a result: Firestore rules only allow
+        // bot games to be created already finished, and the
+        // submitGameResult function owns the `result` field.
         const id = await saveCompletedGame({
           whitePlayerId: game.whitePlayerId,
           blackPlayerId: game.blackPlayerId as string,
@@ -85,7 +88,6 @@ export default function OnlineGamePage() {
           blackName: game.blackName ?? "Player",
           isBotGame: false,
           isOnline: true,
-          result: "draw", // placeholder; replaced by submitOnlineResult
           reason: "in progress",
           rated: game.rated,
           timeControl: String(Math.round(game.initialMs / 1000)),

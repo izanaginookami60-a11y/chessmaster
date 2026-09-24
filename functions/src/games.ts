@@ -216,6 +216,7 @@ export const submitGameResult = onCall(async (request) => {
     reason,
     finalFen: finalFen ?? null,
     moves: data.moves ?? [],
+    status: "finished",
     finishedAt: new Date().toISOString(),
   });
 
